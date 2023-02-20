@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  todo-db:
+    image: postgres:15
+    restart: always
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: serenify-db
+    networks:
+      - serenify-pg
+networks:
+  serenify-pg:
