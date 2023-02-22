@@ -10,6 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UserDto } from 'core/auth/dto/user.dto';
 import { OptionsService } from 'core/options/options.service';
+import { OptionsDto } from 'core/options/dto/options.dto';
 
 @Injectable()
 export class AuthService {
@@ -103,5 +104,17 @@ export class AuthService {
   ): Promise<{ user: UserDto; accessToken: string; refreshToken: string }> {
     const { refreshToken, accessToken } = await this.generateTokens(userDto);
     return { user: userDto, refreshToken, accessToken };
+  }
+
+  async getUser(
+    user: UserDto,
+  ): Promise<{ user: UserDto; options: OptionsDto }> {
+    const options = await this.dbService.options.findUnique({
+      where: { userId: user.id },
+    });
+    const { ...optionsDto } = new OptionsDto(options);
+    const { ...userDto } = new UserDto(user);
+
+    return { user: userDto, options: optionsDto };
   }
 }

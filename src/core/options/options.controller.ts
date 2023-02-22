@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch } from '@nestjs/common';
+import { Body, Controller, Get, Put } from '@nestjs/common';
 import { Options } from '@prisma/client';
 import { GetPayload } from 'core/decorators/get-payload.decorator';
 import { UserDto } from 'core/auth/dto/user.dto';
@@ -14,11 +14,8 @@ export class OptionsController {
     return { options };
   }
 
-  @Patch('update')
-  async updateOptions(
-    @GetPayload() user: UserDto,
-    @Body('options') options: Options,
-  ) {
+  @Put('update')
+  async updateOptions(@GetPayload() user: UserDto, @Body() options: Options) {
     const { optionsUpdate } = await this.optionsService.updateOptions(
       user,
       options,

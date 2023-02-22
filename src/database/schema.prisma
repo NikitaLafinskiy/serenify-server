@@ -29,7 +29,7 @@ model Options {
 
 model RefreshToken {
   id        String @id @default(uuid())
-  token    String
+  token     String
   userId    String @unique
   belongsTo User   @relation(fields: [userId], references: [id])
 }

@@ -3,23 +3,26 @@ import { Options, Prisma } from '@prisma/client';
 import { DbService } from 'core/db/db.service';
 import { UserDto } from 'core/auth/dto/user.dto';
 import { AtGuard } from 'core/guards/at.guard';
+import { OptionsDto } from './dto/options.dto';
 
 @Injectable()
 export class OptionsService {
   constructor(private dbService: DbService) {}
 
   @UseGuards(AtGuard)
-  async getOptions(user: UserDto): Promise<{ options: Options }> {
+  async getOptions(user: UserDto): Promise<{ options: OptionsDto }> {
     const options = await this.dbService.options.findUnique({
       where: { userId: user.id },
     });
-    return { options };
+    const { ...optionsDto } = new OptionsDto(options);
+
+    return { options: optionsDto };
   }
 
   async updateOptions(
     user: UserDto,
     options: Options,
-  ): Promise<{ optionsUpdate: Options }> {
+  ): Promise<{ optionsUpdate: OptionsDto }> {
     const optionsUpdate = await this.dbService.options.update({
       where: { userId: user.id },
       data: {
@@ -29,10 +32,12 @@ export class OptionsService {
         hold: options.hold,
       },
     });
-    return { optionsUpdate };
+    const { ...optionsDto } = new OptionsDto(optionsUpdate);
+
+    return { optionsUpdate: optionsDto };
   }
 
-  async createOptions(user: UserDto): Promise<Options> {
+  async createOptions(user: UserDto): Promise<OptionsDto> {
     const options = await this.dbService.options.create({
       data: {
         userId: user.id,
@@ -42,7 +47,8 @@ export class OptionsService {
         hold: 50,
       },
     });
+    const { ...optionsDto } = new OptionsDto(options);
 
-    return options;
+    return optionsDto;
   }
 }

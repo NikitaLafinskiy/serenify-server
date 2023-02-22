@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from 'core/auth/auth.service';
 import { AuthDto } from './dto/auth.dto';
 import { Response } from 'express';
@@ -41,7 +41,7 @@ export class AuthController {
 
   @Public()
   @UseGuards(RtGuard)
-  @Post('refresh')
+  @Get('refresh')
   async refresh(
     @GetPayload() userDto: UserDto,
     @Res({ passthrough: true }) res: Response,
@@ -52,5 +52,11 @@ export class AuthController {
     setAuthCookie(res, refreshToken);
 
     return { user, accessToken };
+  }
+
+  @Get('getUser')
+  async getUser(@GetPayload() userDto: UserDto) {
+    const { user, options } = await this.authService.getUser(userDto);
+    return { user, options };
   }
 }
