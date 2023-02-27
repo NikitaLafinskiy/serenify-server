@@ -1,5 +1,5 @@
 # Use an official Node.js runtime as a parent image
-FROM node:18-alpine
+FROM node:14-alpine
 
 # Set the working directory to /app
 WORKDIR /usr/src/app
@@ -11,7 +11,7 @@ COPY package*.json ./
 COPY . .
 
 # Install app dependencies
-RUN npm install --force
+RUN npx npm@6 install --force
 
 # Expose port 3000 for the Nest.js app
 EXPOSE 3000
