@@ -9,6 +9,6 @@ async function bootstrap() {
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
   app.use(cors({ origin: 'https://sereni-fy.com', credentials: true }));
-  await app.listen(3000);
+  await app.listen(8080);
 }
 bootstrap();
