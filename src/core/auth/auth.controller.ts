@@ -1,62 +1,49 @@
-import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from 'core/auth/auth.service';
 import { AuthDto } from './dto/auth.dto';
 import { Response } from 'express';
-import { Public } from 'core/decorators/public.decorator';
+import { Public } from 'core/auth/decorators/public.decorator';
 import { GetPayload } from 'core/decorators/get-payload.decorator';
-import { UserDto } from 'core/auth/dto/user.dto';
-import { RtGuard } from 'core/guards/rt.guard';
-import { setAuthCookie } from 'utils/auth/setAuthCookie.utils';
+import { UserDto } from 'core/user/dtos/user.dto';
+import { RtGuard } from 'core/auth/guards/refresh.guard';
 
+@Public()
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Public()
   @Post('signup')
-  async signup(
-    @Body() authDto: AuthDto,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const { refreshToken, accessToken, user } = await this.authService.singup(
+  async signup(@Body() authDto: AuthDto) {
+    const { accessToken, refreshTokenId, user } = await this.authService.singup(
       authDto,
     );
-    setAuthCookie(res, refreshToken);
 
-    return { user, accessToken };
+    return { user, accessToken, refreshTokenId };
   }
 
-  @Public()
   @Post('login')
-  async login(
-    @Body() authDto: AuthDto,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const { user, accessToken, refreshToken } = await this.authService.login(
+  async login(@Body() authDto: AuthDto) {
+    const { accessToken, refreshTokenId, user } = await this.authService.login(
       authDto,
     );
-    setAuthCookie(res, refreshToken);
-    return { user, accessToken };
+
+    return { user, accessToken, refreshTokenId };
   }
 
-  @Public()
   @UseGuards(RtGuard)
   @Get('refresh')
-  async refresh(
-    @GetPayload() userDto: UserDto,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const { user, accessToken, refreshToken } = await this.authService.refresh(
-      userDto,
-    );
-    setAuthCookie(res, refreshToken);
+  async refresh(@Req() req) {
+    const { accessToken, refreshTokenId, user } =
+      await this.authService.refresh(req.user);
 
-    return { user, accessToken };
-  }
-
-  @Get('getUser')
-  async getUser(@GetPayload() userDto: UserDto) {
-    const { user, options } = await this.authService.getUser(userDto);
-    return { user, options };
+    return { user, accessToken, refreshTokenId };
   }
 }

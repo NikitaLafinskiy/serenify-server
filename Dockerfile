@@ -1,26 +1,15 @@
-# Use an official Node.js runtime as a parent image
-FROM node:14-alpine
+FROM node:alpine
 
-# Set the working directory to /app
 WORKDIR /usr/src/app
 
-# Copy the package.json and package-lock.json files to the container
 COPY package*.json ./
 
-# Bundle app source code
+RUN npm install
+
 COPY . .
 
-# Install app dependencies
-RUN npx npm@6 install --force
+# RUN echo "host all all * md5" >> /var/lib/postgresql/data/pg_hba.conf
 
-# Expose port 3000 for the Nest.js app
-EXPOSE 3000
+COPY ./src/database/schema.prisma ./prisma/ 
 
-# Install the Postgres database
-RUN apt-get update && apt-get install -y postgresql postgresql-contrib
-
-# Install the Prisma ORM
-RUN npm install prisma -D
-
-# Set the default command to start the Nest.js app and the Postgres database
-CMD npm run start:prod
+CMD ["npm", "run", "start"]

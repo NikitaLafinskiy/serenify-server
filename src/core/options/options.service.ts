@@ -1,15 +1,15 @@
 import { Injectable, UseGuards } from '@nestjs/common';
 import { Options, Prisma } from '@prisma/client';
 import { DbService } from 'core/db/db.service';
-import { UserDto } from 'core/auth/dto/user.dto';
-import { AtGuard } from 'core/guards/at.guard';
+import { UserDto } from 'core/user/dtos/user.dto';
+import { JwtGuard } from 'core/auth/guards/jwt.guard';
 import { OptionsDto } from './dto/options.dto';
 
 @Injectable()
 export class OptionsService {
   constructor(private dbService: DbService) {}
 
-  @UseGuards(AtGuard)
+  @UseGuards(JwtGuard)
   async getOptions(user: UserDto): Promise<{ options: OptionsDto }> {
     const options = await this.dbService.options.findUnique({
       where: { userId: user.id },

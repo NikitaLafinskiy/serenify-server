@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Put } from '@nestjs/common';
 import { Options } from '@prisma/client';
 import { GetPayload } from 'core/decorators/get-payload.decorator';
-import { UserDto } from 'core/auth/dto/user.dto';
+import { UserDto } from 'core/user/dtos/user.dto';
 import { OptionsService } from './options.service';
 
 @Controller('options')

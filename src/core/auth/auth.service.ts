@@ -6,24 +6,24 @@ import {
 import * as argon from 'argon2';
 import { DbService } from 'core/db/db.service';
 import { AuthDto } from 'core/auth/dto/auth.dto';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { UserDto } from 'core/auth/dto/user.dto';
+import { UserDto } from 'core/user/dtos/user.dto';
 import { OptionsService } from 'core/options/options.service';
-import { OptionsDto } from 'core/options/dto/options.dto';
+import { TokensService } from 'core/tokens/tokens.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private dbService: DbService,
-    private jwt: JwtService,
-    private config: ConfigService,
-    private optionsService: OptionsService,
+    private readonly dbService: DbService,
+    private readonly optionsService: OptionsService,
+    private readonly tokenService: TokensService,
   ) {}
 
-  async singup(
-    authDto: AuthDto,
-  ): Promise<{ refreshToken: string; accessToken: string; user: UserDto }> {
+  async singup(authDto: AuthDto): Promise<{
+    refreshToken: string;
+    accessToken: string;
+    user: UserDto;
+    refreshTokenId: string;
+  }> {
     const userDoesExist = await this.dbService.user.findUnique({
       where: { username: authDto.username },
     });
@@ -37,13 +37,18 @@ export class AuthService {
     });
 
     const { ...userDto } = new UserDto(user);
-    const { ...tokens } = await this.generateTokens(userDto);
+    const { ...tokens } = await this.tokenService.generateTokens(userDto);
     await this.optionsService.createOptions(userDto);
 
     return { ...tokens, user: userDto };
   }
 
-  async login(authDto: AuthDto) {
+  async login(authDto: AuthDto): Promise<{
+    refreshToken: string;
+    accessToken: string;
+    user: UserDto;
+    refreshTokenId: string;
+  }> {
     const user = await this.dbService.user.findUnique({
       where: { username: authDto.username },
     });
@@ -60,30 +65,20 @@ export class AuthService {
     }
 
     const { ...userDto } = new UserDto(user);
-    const { ...tokens } = await this.generateTokens(userDto);
+    const { ...tokens } = await this.tokenService.generateTokens(userDto);
 
     return { ...tokens, user: userDto };
   }
 
-  async generateTokens(
-    userDto: UserDto,
-  ): Promise<{ refreshToken: string; accessToken: string }> {
-    const accessToken = this.jwt.sign(userDto, {
-      expiresIn: '15m',
-      secret: this.config.get('JWT_ACCESS_SECRET'),
-    });
-    const refreshToken = this.jwt.sign(userDto, {
-      expiresIn: '30d',
-      secret: this.config.get('JWT_REFRESH_SECRET'),
-    });
+  async refresh(userDto: UserDto): Promise<{
+    user: UserDto;
+    accessToken: string;
+    refreshToken: string;
+    refreshTokenId: string;
+  }> {
+    const { ...tokens } = await this.tokenService.generateTokens(userDto);
 
-    await this.dbService.refreshToken.upsert({
-      where: { userId: userDto.id },
-      create: { token: refreshToken, userId: userDto.id },
-      update: { token: refreshToken, userId: userDto.id },
-    });
-
-    return { refreshToken, accessToken };
+    return { user: userDto, ...tokens };
   }
 
   async hashPassword(password: string): Promise<{ hashedPassword: string }> {
@@ -97,24 +92,5 @@ export class AuthService {
   ): Promise<{ isMatch: boolean }> {
     const isMatch = await argon.verify(hash, password);
     return { isMatch };
-  }
-
-  async refresh(
-    userDto: UserDto,
-  ): Promise<{ user: UserDto; accessToken: string; refreshToken: string }> {
-    const { refreshToken, accessToken } = await this.generateTokens(userDto);
-    return { user: userDto, refreshToken, accessToken };
-  }
-
-  async getUser(
-    user: UserDto,
-  ): Promise<{ user: UserDto; options: OptionsDto }> {
-    const options = await this.dbService.options.findUnique({
-      where: { userId: user.id },
-    });
-    const { ...optionsDto } = new OptionsDto(options);
-    const { ...userDto } = new UserDto(user);
-
-    return { user: userDto, options: optionsDto };
   }
 }

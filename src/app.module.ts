@@ -3,8 +3,11 @@ import { ConfigModule } from '@nestjs/config';
 import { DbModule } from 'core/db/db.module';
 import { AuthModule } from 'core/auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
-import { AtGuard } from 'core/guards/at.guard';
+import { JwtGuard } from 'core/auth/guards/jwt.guard';
 import { OptionsModule } from './core/options/options.module';
+import { TokensModule } from './core/tokens/tokens.module';
+import { UserService } from './core/user/user.service';
+import { UserModule } from './core/user/user.module';
 
 @Module({
   imports: [
@@ -12,14 +15,17 @@ import { OptionsModule } from './core/options/options.module';
     ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
     OptionsModule,
+    TokensModule,
+    UserModule,
   ],
   controllers: [],
   providers: [
     ConfigModule,
     {
       provide: APP_GUARD,
-      useClass: AtGuard,
+      useClass: JwtGuard,
     },
+    UserService,
   ],
 })
 export class AppModule {}

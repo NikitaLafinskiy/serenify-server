@@ -1,31 +1,43 @@
 version: '3.8'
 services:
-  todo-db:
-    image: postgres:15
-    restart: always
+  serenify-database:
+    image: postgres:latest
     ports:
-      - 5433:5432
+      - '5433:5432'
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1234
+      POSTGRES_PASSWORD: password
       POSTGRES_DB: serenify-db
+    volumes:
+      - serenify-data:/var/lib/postgresql/data
     networks:
-      - serenify-pg
+      - serenify-network
 
   serenify:
-    container_name: serenify
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - 3000
-    restart: always
+      - '3000:3000'
+    networks:
+      - serenify-network
+    depends_on:
+      - serenify-database
+    command: sh -c "while ! nc -z serenify-database 5432; do sleep 1; done && npx prisma db push && npm run start"
 
-  proxy:
-    build: nginx/
+  nginx:
+    image: nginx:latest
     ports:
       - '80:80'
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - serenify
-    restart: always
+    networks:
+      - serenify-network
 
 networks:
-  serenify-pg:
+  serenify-network:
+
+volumes:
+  serenify-data:
