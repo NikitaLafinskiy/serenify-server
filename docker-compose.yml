@@ -36,6 +36,15 @@ services:
     networks:
       - serenify-network
 
+  client:
+    build:
+      context: ../serenify/
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    networks:
+      - serenify-network
+
 networks:
   serenify-network:
 
