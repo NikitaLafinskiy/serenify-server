@@ -45,6 +45,10 @@ export class TokensService {
     const refreshToken = await this.dbService.refreshToken.findUnique({
       where: { id: refreshTokenId },
     });
+
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token not found');
+    }
     const token = refreshToken.token;
 
     const payload = this.jwtService.verify(token, {

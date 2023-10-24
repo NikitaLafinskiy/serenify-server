@@ -10,7 +10,6 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
   const corsOptions: CorsOptions = {
     origin: 'https://sereni-fy.com',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   };
 
