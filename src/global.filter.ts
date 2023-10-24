@@ -4,9 +4,10 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  UnauthorizedException,
 } from '@nestjs/common';
 
-@Catch(HttpException)
+@Catch(UnauthorizedException)
 export class GlobalExceptionFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
