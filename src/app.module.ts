@@ -8,7 +8,7 @@ import { OptionsModule } from './core/options/options.module';
 import { TokensModule } from './core/tokens/tokens.module';
 import { UserService } from './core/user/user.service';
 import { UserModule } from './core/user/user.module';
-import { AuthExceptionFilter } from 'core/auth/filters/Auth.filter';
+import { AuthExceptionFilter } from 'core/auth/filters/auth.filter';
 
 @Module({
   imports: [
