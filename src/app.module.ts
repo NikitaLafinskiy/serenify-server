@@ -2,12 +2,13 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { DbModule } from 'core/db/db.module';
 import { AuthModule } from 'core/auth/auth.module';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { JwtGuard } from 'core/auth/guards/jwt.guard';
 import { OptionsModule } from './core/options/options.module';
 import { TokensModule } from './core/tokens/tokens.module';
 import { UserService } from './core/user/user.service';
 import { UserModule } from './core/user/user.module';
+import { AuthExceptionFilter } from 'core/auth/filters/Auth.filter';
 
 @Module({
   imports: [
@@ -24,6 +25,10 @@ import { UserModule } from './core/user/user.module';
     {
       provide: APP_GUARD,
       useClass: JwtGuard,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: AuthExceptionFilter,
     },
     UserService,
   ],
