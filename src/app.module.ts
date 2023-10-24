@@ -8,7 +8,7 @@ import { OptionsModule } from './core/options/options.module';
 import { TokensModule } from './core/tokens/tokens.module';
 import { UserService } from './core/user/user.service';
 import { UserModule } from './core/user/user.module';
-import { AuthExceptionFilter } from 'core/auth/filters/auth.filter';
+import { GlobalExceptionFilter } from 'global.filter';
 
 @Module({
   imports: [
@@ -28,7 +28,7 @@ import { AuthExceptionFilter } from 'core/auth/filters/auth.filter';
     },
     {
       provide: APP_FILTER,
-      useClass: AuthExceptionFilter,
+      useClass: GlobalExceptionFilter,
     },
     UserService,
   ],
