@@ -23,12 +23,12 @@ import { GlobalExceptionFilter } from 'global.filter';
   providers: [
     ConfigModule,
     {
-      provide: APP_GUARD,
-      useClass: JwtGuard,
-    },
-    {
       provide: APP_FILTER,
       useClass: GlobalExceptionFilter,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: JwtGuard,
     },
     UserService,
   ],
