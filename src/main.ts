@@ -7,7 +7,9 @@ import { GlobalExceptionFilter } from 'global.filter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalFilters(new GlobalExceptionFilter());
+  app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+  console.log('Application started');
 
   await app.listen(8080, 'serenify');
 }
