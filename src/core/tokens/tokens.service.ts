@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  LoggerService,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { UserDto } from 'core/user/dtos/user.dto';
@@ -10,6 +14,7 @@ export class TokensService {
     private readonly dbService: DbService,
     private readonly config: ConfigService,
     private readonly jwtService: JwtService,
+    private readonly loggerService: LoggerService,
   ) {}
 
   async generateTokens(userDto: UserDto): Promise<{
@@ -42,16 +47,16 @@ export class TokensService {
   async getAndVerifyRefreshToken(
     refreshTokenId: string,
   ): Promise<{ user: UserDto }> {
-    console.log('arrived to verification');
+    this.loggerService.debug('verifying');
     const refreshToken = await this.dbService.refreshToken.findUnique({
       where: { id: refreshTokenId },
     });
-    console.log('searched for the token, ' + refreshToken);
+    this.loggerService.debug('finished the search');
     if (!refreshToken) {
-      console.log('inside of the if');
+      this.loggerService.debug('inside of if');
       throw new UnauthorizedException('Refresh token not found');
     }
-    console.log('passed check');
+    this.loggerService.debug('ipassed check');
     const token = refreshToken.token;
 
     const payload = this.jwtService.verify(token, {

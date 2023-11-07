@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  LoggerService,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-custom';
 import { Request } from 'express';
@@ -6,11 +10,14 @@ import { TokensService } from 'core/tokens/tokens.service';
 
 @Injectable()
 export class RefreshStrategy extends PassportStrategy(Strategy, 'refresh') {
-  constructor(private readonly tokenService: TokensService) {
+  constructor(
+    private readonly tokenService: TokensService,
+    private readonly loggerService: LoggerService,
+  ) {
     super(async (req: Request, done) => {
       const bearerTokenUUID = req.headers.authorization;
       const tokenUUID = bearerTokenUUID.split(' ')[1];
-      console.log('arrived to the strategy before verification');
+      this.loggerService.debug('arrived to the strategy');
       const { user } = await this.tokenService.getAndVerifyRefreshToken(
         tokenUUID,
       );
