@@ -9,6 +9,7 @@ async function bootstrap() {
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
   app.useGlobalFilters(new GlobalExceptionFilter());
+
   await app.listen(8080, 'serenify');
 }
 bootstrap();
