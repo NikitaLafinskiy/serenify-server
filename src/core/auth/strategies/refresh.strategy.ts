@@ -10,7 +10,7 @@ export class RefreshStrategy extends PassportStrategy(Strategy, 'refresh') {
     super(async (req: Request, done) => {
       const bearerTokenUUID = req.headers.authorization;
       const tokenUUID = bearerTokenUUID.split(' ')[1];
-
+      console.log('arrived to the strategy before verification');
       const { user } = await this.tokenService.getAndVerifyRefreshToken(
         tokenUUID,
       );
