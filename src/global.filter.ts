@@ -5,25 +5,28 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
+import { HttpAdapterHost } from '@nestjs/core';
 
-@Catch(HttpException)
+@Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
-  catch(exception: HttpException, host: ArgumentsHost) {
-    const ctx = host.switchToHttp();
-    const response = ctx.getResponse();
-    const request = ctx.getRequest();
+  constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
 
-    const status =
+  catch(exception: unknown, host: ArgumentsHost): void {
+    const { httpAdapter } = this.httpAdapterHost;
+
+    const ctx = host.switchToHttp();
+
+    const httpStatus =
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    response.status(status).json({
-      statusCode: status,
+    const responseBody = {
+      statusCode: httpStatus,
       timestamp: new Date().toISOString(),
-      path: request.url,
-      cause: exception.cause,
-      message: exception.message,
-    });
+      path: httpAdapter.getRequestUrl(ctx.getRequest()),
+    };
+
+    httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);
   }
 }

@@ -2,21 +2,20 @@ import {
   Body,
   Controller,
   Get,
+  Injectable,
   Post,
   Req,
-  Res,
+  Scope,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from 'core/auth/auth.service';
 import { AuthDto } from './dto/auth.dto';
-import { Response } from 'express';
 import { Public } from 'core/auth/decorators/public.decorator';
-import { GetPayload } from 'core/decorators/get-payload.decorator';
-import { UserDto } from 'core/user/dtos/user.dto';
 import { RtGuard } from 'core/auth/guards/refresh.guard';
 
 @Public()
 @Controller('auth')
+@Injectable({ scope: Scope.REQUEST })
 export class AuthController {
   constructor(private authService: AuthService) {}
 
