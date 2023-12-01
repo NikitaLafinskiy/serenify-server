@@ -8,10 +8,11 @@ RUN npm install
 
 COPY . .
 
+COPY ./src/database/schema.prisma ./prisma/ 
+
 RUN npm run build
 
 # RUN echo "host all all * md5" >> /var/lib/postgresql/data/pg_hba.conf
 
-COPY ./src/database/schema.prisma ./prisma/ 
 
 CMD ["npm", "run", "start"]
