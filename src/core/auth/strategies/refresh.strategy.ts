@@ -10,14 +10,10 @@ import { TokensService } from 'core/tokens/tokens.service';
 
 @Injectable()
 export class RefreshStrategy extends PassportStrategy(Strategy, 'refresh') {
-  constructor(
-    private readonly tokenService: TokensService,
-    private readonly loggerService: LoggerService,
-  ) {
+  constructor(private readonly tokenService: TokensService) {
     super(async (req: Request, done) => {
       const bearerTokenUUID = req.headers.authorization;
       const tokenUUID = bearerTokenUUID.split(' ')[1];
-      this.loggerService.debug('arrived to the strategy');
       const { user } = await this.tokenService.getAndVerifyRefreshToken(
         tokenUUID,
       );

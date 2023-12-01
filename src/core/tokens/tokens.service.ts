@@ -14,7 +14,6 @@ export class TokensService {
     private readonly dbService: DbService,
     private readonly config: ConfigService,
     private readonly jwtService: JwtService,
-    private readonly loggerService: LoggerService,
   ) {}
 
   async generateTokens(userDto: UserDto): Promise<{
@@ -47,16 +46,12 @@ export class TokensService {
   async getAndVerifyRefreshToken(
     refreshTokenId: string,
   ): Promise<{ user: UserDto }> {
-    this.loggerService.debug('verifying');
     const refreshToken = await this.dbService.refreshToken.findUnique({
       where: { id: refreshTokenId },
     });
-    this.loggerService.debug('finished the search');
     if (!refreshToken) {
-      this.loggerService.debug('inside of if');
       throw new UnauthorizedException('Refresh token not found');
     }
-    this.loggerService.debug('ipassed check');
     const token = refreshToken.token;
 
     const payload = this.jwtService.verify(token, {
