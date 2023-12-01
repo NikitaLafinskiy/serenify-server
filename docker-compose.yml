@@ -23,7 +23,7 @@ services:
       - serenify-network
     depends_on:
       - serenify-database
-    command: sh -c "while ! nc -z serenify-database 5432; do sleep 1; done && npx prisma db push && npm run start"
+    command: sh -c "while ! nc -z serenify-database 5432; do sleep 1; done && npx prisma db push && npm run start:prod"
 
   nginx:
     image: nginx:latest

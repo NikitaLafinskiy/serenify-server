@@ -10,9 +10,8 @@ COPY . .
 
 COPY ./src/database/schema.prisma ./prisma/ 
 
+RUN npx prisma generate
+
 RUN npm run build
 
-# RUN echo "host all all * md5" >> /var/lib/postgresql/data/pg_hba.conf
-
-
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "start:prod"]
