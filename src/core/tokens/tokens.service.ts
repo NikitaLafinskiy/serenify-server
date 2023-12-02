@@ -46,26 +46,30 @@ export class TokensService {
   async getAndVerifyRefreshToken(
     refreshTokenId: string,
   ): Promise<{ user: UserDto }> {
-    const refreshToken = await this.dbService.refreshToken.findUnique({
-      where: { id: refreshTokenId },
-    });
-    if (!refreshToken) {
-      throw new UnauthorizedException('Refresh token not found');
+    try {
+      const refreshToken = await this.dbService.refreshToken.findUnique({
+        where: { id: refreshTokenId },
+      });
+      if (!refreshToken) {
+        throw new UnauthorizedException('Refresh token not found');
+      }
+      const token = refreshToken.token;
+
+      const payload = this.jwtService.verify(token, {
+        secret: this.config.get('JWT_REFRESH_SECRET'),
+      });
+      if (!payload) {
+        throw new UnauthorizedException('Refresh token is not valid');
+      }
+
+      const user = await this.dbService.user.findUnique({
+        where: { id: payload.sub },
+      });
+      const { ...userDto } = new UserDto(user);
+
+      return { user: userDto };
+    } catch (err) {
+      return { user: null };
     }
-    const token = refreshToken.token;
-
-    const payload = this.jwtService.verify(token, {
-      secret: this.config.get('JWT_REFRESH_SECRET'),
-    });
-    if (!payload) {
-      throw new UnauthorizedException('Refresh token is not valid');
-    }
-
-    const user = await this.dbService.user.findUnique({
-      where: { id: payload.sub },
-    });
-    const { ...userDto } = new UserDto(user);
-
-    return { user: userDto };
   }
 }
