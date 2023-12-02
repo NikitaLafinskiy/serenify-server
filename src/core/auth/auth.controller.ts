@@ -40,9 +40,13 @@ export class AuthController {
   @UseGuards(RtGuard)
   @Get('refresh')
   async refresh(@Req() req) {
-    const { accessToken, refreshTokenId, user } =
-      await this.authService.refresh(req.user);
+    try {
+      const { accessToken, refreshTokenId, user } =
+        await this.authService.refresh(req.user);
 
-    return { user, accessToken, refreshTokenId };
+      return { user, accessToken, refreshTokenId };
+    } catch (err) {
+      return { errorMessage: err.message };
+    }
   }
 }
